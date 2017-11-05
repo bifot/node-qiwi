@@ -28,7 +28,7 @@ $ npm test
 ### constructor(key)
 
 | Parameter  | Type      | Requried  | Description  | 
-| -----------|:---------:|:---------:|:------------:|
+|:-----------:|:---------:|:---------:|:------------:|
 | key        | string    | yes       | Access token for call API methods |
 
 Create wallet.
@@ -36,7 +36,7 @@ Create wallet.
 ### .getProfile(settings)
 
 | Parameter  | Type      | Requried  | Description  | 
-| -----------|:---------:|:---------:|:------------:|
+|:-----------:|:---------:|:---------:|:------------:|
 | settings   | object    | no        | Extra settings ([see](https://developer.qiwi.com/ru/qiwi-wallet-personal/#profile)) |
 
 Get profile.
@@ -48,7 +48,7 @@ Get balance of all accounts.
 ### .getHistory(contractId, settings)
 
 | Parameter  | Type      | Requried  | Description  | 
-| -----------|:---------:|:---------:|:------------:|
+|:-----------:|:---------:|:---------:|:------------:|
 | contractId | string    | yes       | Wallet's contractId |
 | settings   | object    | no        | Extra settings ([see](https://developer.qiwi.com/ru/qiwi-wallet-personal/#payments_history)) |
 
@@ -62,7 +62,7 @@ Get history.
 ### .sendPayment(amount, account, comment)
 
 | Parameter  | Type          | Requried  | Description  | 
-| -----------|:-------------:|:---------:|:------------:|
+|:-----------:|:-------------:|:---------:|:------------:|
 | amount     | number/string | yes       | Transaction amount     |
 | account    | number/string | yes       | Recipient's account    |
 | comment    | string        | no        | Comment to transaction |
