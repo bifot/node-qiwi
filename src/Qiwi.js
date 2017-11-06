@@ -103,7 +103,7 @@ module.exports = class Qiwi {
             accountId: '643'
           },
           fields: {
-            account
+            account: String(account)
           },
           comment
         },
