@@ -187,7 +187,7 @@ module.exports = class Qiwi {
           'Authorization': `Bearer ${key}`
         },
         body: {
-          id: String(new Date().getTime() * 1000),
+          id: String(Date.now()),
           sum: {
             amount,
             currency: '643'
