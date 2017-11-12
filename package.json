@@ -1,6 +1,6 @@
 {
   "name": "node-qiwi",
-  "version": "1.0.3",
+  "version": "1.0.4",
   "description": "API for Qiwi Wallet.",
   "main": "src/Qiwi.js",
   "scripts": {
