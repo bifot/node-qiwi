@@ -188,17 +188,17 @@ describe('QIWI', function () {
     })
   })
 
-  // it('SEND payment', async () => {
-  //   const payment = await wallet.sendPayment(1, '37253676697', 'This is comment')
-  //
-  //   expect(payment).to.be.a('object').to.have.keys([
-  //     'id',
-  //     'terms',
-  //     'fields',
-  //     'sum',
-  //     'transaction',
-  //     'comment',
-  //     'source'
-  //   ])
-  // })
+  it('SEND payment', async () => {
+    const payment = await wallet.sendPayment(1, '37253676697', 'This is comment')
+
+    expect(payment).to.be.a('object').to.have.keys([
+      'id',
+      'terms',
+      'fields',
+      'sum',
+      'transaction',
+      'comment',
+      'source'
+    ])
+  })
 })
