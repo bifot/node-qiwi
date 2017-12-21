@@ -70,7 +70,6 @@ Get balance.
 | settings   | object    | no        | Extra settings ([see](https://developer.qiwi.com/ru/qiwi-wallet-personal/#payments_history)) |
 
 ```js
-const { contractInfo: { contractId } } = await wallet.getProfile()
 const history = await wallet.getHistory(contractId)
 ```
 
