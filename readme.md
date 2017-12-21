@@ -8,7 +8,7 @@ API for Qiwi Wallet.
 ## Install
 
 ```sh
-$ npm i node-qiwi
+$ npm i node-qiwi -S
 ```
 
 ## Tests
@@ -34,6 +34,12 @@ $ npm test
 |:-----------:|:---------:|:---------:|:------------:|
 | key        | string    | yes       | Access token for call API methods |
 
+```js
+const Qiwi = require('node-qiwi')
+
+const wallet = new Qiwi(process.env.TOKEN)
+```
+
 Create wallet.
 
 ### .getProfile(settings)
@@ -42,11 +48,19 @@ Create wallet.
 |:-----------:|:---------:|:---------:|:------------:|
 | settings   | object    | no        | Extra settings ([see](https://developer.qiwi.com/ru/qiwi-wallet-personal/#profile)) |
 
+```js
+const profile = await wallet.getProfile()
+```
+
 Get profile.
 
 ### .getBalance()
 
-Get balance of all accounts.
+```js
+const balance = await wallet.getBalance()
+```
+
+Get balance.
 
 ### .getHistory(contractId, settings)
 
@@ -104,11 +118,10 @@ Get transaction stats.
 | Parameter  | Type      | Requried  | Description  |
 |:-----------:|:---------:|:---------:|:------------:|
 | transactionId | string    | yes       | Wallet's contractId |
-| settings   | object    | no        | Extra settings |
+| settings   | object    | yes        | Extra settings |
+| settings.type   | string    | yes        | Transaction's type |
 
 ```js
-const [ operation ] = await wallet.getHistory(contractId)
-const { txnId: transactionId, type } = operation
 const transaction = await wallet.getTransaction(transactionId, { type })
 ```
 
@@ -121,6 +134,10 @@ Get transaction.
 | amount     | number/string | yes       | Transaction amount     |
 | account    | number/string | yes       | Recipient's account    |
 | comment    | string        | no        | Comment to transaction |
+
+```js
+const payment = await wallet.sendPayment(1, 37253676697, 'This is comment')
+```
 
 Send payment.
 
