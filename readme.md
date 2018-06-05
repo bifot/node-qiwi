@@ -1,5 +1,4 @@
 [![node-qiwi](https://img.shields.io/npm/v/node-qiwi.svg?style=flat-square)](https://www.npmjs.com/package/node-qiwi/)
-[![node-qiwi](https://img.shields.io/badge/code%20style-standard-brightgreen.svg?style=flat-square)](http://standardjs.com/)
 
 # node-qiwi
 
@@ -22,9 +21,9 @@ $ npm test
 * [constructor(key)](#constructorkey)
 * [.getProfile(settings)](#getprofilesettings) ⇒ `[Promise]`
 * [.getBalance()](#getbalance) ⇒ `[Promise]`
-* [.getHistory(contractId, settings)](#gethistorycontractid-settings) ⇒ `[Promise]`
-* [.getIdentification(contractId, body)](#getidentificationcontractid-body) ⇒ `[Promise]`
-* [.getTransactionsStats(contractId, settings)](#gettransactionsstatscontractid-settings) ⇒ `[Promise]`
+* [.getHistory(settings)](#gethistorysettings) ⇒ `[Promise]`
+* [.getIdentification(body)](#getidentificationbody) ⇒ `[Promise]`
+* [.getTransactionsStats(settings)](#gettransactionsstatssettings) ⇒ `[Promise]`
 * [.getTransaction(transactionId, settings)](#gettransaction-transactionid-settings) ⇒ `[Promise]`
 * [.sendPayment(amount, account, comment)](#sendpaymentamount-account-comment) ⇒ `[Promise]`
 
@@ -32,7 +31,7 @@ $ npm test
 
 | Parameter  | Type      | Requried  | Description  |
 |:-----------:|:---------:|:---------:|:------------:|
-| key        | string    | yes       | Access token for call API methods |
+| key        | string    | yes       | Access token |
 
 ```js
 const Qiwi = require('node-qiwi')
@@ -40,13 +39,9 @@ const Qiwi = require('node-qiwi')
 const wallet = new Qiwi(process.env.TOKEN)
 ```
 
-Create wallet.
+Create API's instance.
 
 ### .getProfile(settings)
-
-| Parameter  | Type      | Requried  | Description  |
-|:-----------:|:---------:|:---------:|:------------:|
-| settings   | object    | no        | Extra settings ([see](https://developer.qiwi.com/ru/qiwi-wallet-personal/#profile)) |
 
 ```js
 const profile = await wallet.getProfile()
@@ -62,28 +57,39 @@ const balance = await wallet.getBalance()
 
 Get balance.
 
-### .getHistory(contractId, settings)
+### .getHistory(settings)
 
 | Parameter  | Type      | Requried  | Description  |
 |:-----------:|:---------:|:---------:|:------------:|
-| contractId | string    | yes       | Wallet's contractId |
-| settings   | object    | no        | Extra settings ([see](https://developer.qiwi.com/ru/qiwi-wallet-personal/#payments_history)) |
+| settings   | object    | no        | Settings |
+| settings.rows | number | no | Count of rows |
+| settings.operation | string | no | Operations type |
+| settings.sources | array[string] | no | Operations sources |
+| settings.startDate | date    | no       | Start date |
+| settings.endDate | date    | no      | End date |
 
 ```js
-const history = await wallet.getHistory(contractId)
+const history = await wallet.getHistory({
+  rows: 50,
+  operation: 'ALL',
+  sources: [
+    'QW_RUB'
+  ],
+  startDate: new Date(),
+  endDate: new Date()
+})
 ```
 
 Get history.
 
-### .getIdentification(contractId, body)
+### .getIdentification(body)
 
 | Parameter  | Type      | Requried  | Description  |
 |:-----------:|:---------:|:---------:|:------------:|
-| contractId | string    | yes       | Wallet's contractId |
 | body       | object    | yes       | Identification's data |
 
 ```js
-const identification = await wallet.getIdentification(contractId, {
+const identification = await wallet.getIdentification({
   firstName: 'Иван',
   lastName: 'Иванов',
   middleName: 'Иванович',
@@ -94,19 +100,24 @@ const identification = await wallet.getIdentification(contractId, {
 
 Get identification.
 
-### .getTransactionsStats(contractId, settings)
+### .getTransactionsStats(settings)
 
 | Parameter  | Type      | Requried  | Description  |
 |:-----------:|:---------:|:---------:|:------------:|
-| contractId | string    | yes       | Wallet's contractId |
-| settings   | object    | yes       | Extra settings |
+| settings   | object    | yes       | Settings |
 | settings.startDate | date    | yes       | Start date |
 | settings.endDate | date    | yes       | End date |
+| settings.operation | string | no | Operations type |
+| settings.sources | array[string] | no | Operations sources |
 
 ```js
-const stats = await wallet.getTransactionsStats(contractId, {
-  startDate,
-  endDate
+const stats = await wallet.getTransactionsStats({
+  startDate: new Date(),
+  endDate: new Date(),
+  operation: 'ALL',
+  sources: [
+    'QW_RUB'
+  ]
 })
 ```
 
@@ -116,12 +127,14 @@ Get transaction stats.
 
 | Parameter  | Type      | Requried  | Description  |
 |:-----------:|:---------:|:---------:|:------------:|
-| transactionId | string    | yes       | Wallet's contractId |
-| settings   | object    | yes        | Extra settings |
-| settings.type   | string    | yes        | Transaction's type |
+| transactionId | string    | yes       | Transaction's id |
+| settings   | object    | no        |  Settings |
+| settings.type   | string    | no        | Transaction's type |
 
 ```js
-const transaction = await wallet.getTransaction(transactionId, { type })
+const transaction = await wallet.getTransaction('9112223344', {
+  type: 'OUT'
+})
 ```
 
 Get transaction.
