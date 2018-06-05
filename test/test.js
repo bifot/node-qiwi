@@ -3,202 +3,72 @@ const Qiwi = require('../src/Qiwi')
 
 const wallet = new Qiwi(process.env.TOKEN)
 
-describe('QIWI', function () {
-  this.timeout(5000)
+describe('wallet', () => {
+  it('get profile', async () => {
+    const profile = await wallet.getProfile()
 
-  it('GET identification', async () => {
-    const { contractInfo: { contractId } } = await wallet.getProfile()
-    const identification = await wallet.getIdentification(contractId, {
+    expect(profile).to.be.a('object')
+    // TODO: expect to be json schema...
+  })
+
+  it('get identification', async () => {
+    const identification = await wallet.getIdentification({
       firstName: 'Иван',
       lastName: 'Иванов',
       middleName: 'Иванович',
       birthDate: '1998-02-11',
-      passport: 4400111222
+      passport: '4400111222',
+      inn: '1234567890',
+      snils: '1234567890',
+      oms: '1234567890'
     })
 
-    expect(identification)
-      .to.be.a('object')
-      .to.have.all.keys([
-        'id',
-        'firstName',
-        'middleName',
-        'lastName',
-        'birthDate',
-        'passport',
-        'inn',
-        'snils',
-        'oms',
-        'type'
-      ])
+    expect(identification).to.be.a('object')
+    // TODO: expect to be json schema...
   })
 
-  it('GET history', async () => {
-    const { contractInfo: { contractId } } = await wallet.getProfile()
-    const history = await wallet.getHistory(contractId)
+  it('get history', async () => {
+    const history = await wallet.getHistory()
 
     expect(history).to.be.a('array')
-
-    history.forEach((item) => {
-      expect(item)
-        .to.be.a('object')
-        .to.have.keys([
-          'txnId',
-          'personId',
-          'date',
-          'errorCode',
-          'error',
-          'status',
-          'type',
-          'statusText',
-          'trmTxnId',
-          'account',
-          'sum',
-          'commission',
-          'total',
-          'provider',
-          'source',
-          'comment',
-          'currencyRate',
-          'extras',
-          'chequeReady',
-          'bankDocumentAvailable',
-          'bankDocumentReady',
-          'repeatPaymentEnabled',
-          'favoritePaymentEnabled',
-          'regularPaymentEnabled'
-        ])
-    })
+    // TODO: expect to be json schema...
   })
 
-  it('GET transactions stats', async () => {
+  it('get transactions stats', async () => {
     const startDate = new Date()
     const endDate = new Date()
 
     startDate.setDate(1)
 
-    const { contractInfo: { contractId } } = await wallet.getProfile()
-    const stats = await wallet.getTransactionsStats(contractId, {
+    const stats = await wallet.getTransactionsStats({
       startDate,
       endDate
     })
 
-    expect(stats)
-      .to.be.a('object')
-      .to.have.all.keys([ 'incomingTotal', 'outgoingTotal' ])
+    expect(stats).to.be.a('object')
+    // TODO: expect to be json schema...
   })
 
-  it('GET transaction', async () => {
-    const { contractInfo: { contractId } } = await wallet.getProfile()
-    const [ transaction ] = await wallet.getHistory(contractId)
-    const { txnId, type } = transaction
-    const transactionData = await wallet.getTransaction(txnId, { type })
+  it('get transaction', async () => {
+    const [ transaction ] = await wallet.getHistory()
+    const { txnId: transactionId, type } = transaction
+    const transactionData = await wallet.getTransaction(transactionId, { type })
 
-    expect(transaction)
-      .to.be.a('object')
-      .to.have.all.keys([
-        'txnId',
-        'personId',
-        'date',
-        'errorCode',
-        'error',
-        'status',
-        'type',
-        'statusText',
-        'trmTxnId',
-        'account',
-        'sum',
-        'commission',
-        'total',
-        'provider',
-        'source',
-        'comment',
-        'currencyRate',
-        'extras',
-        'chequeReady',
-        'bankDocumentAvailable',
-        'bankDocumentReady',
-        'repeatPaymentEnabled',
-        'favoritePaymentEnabled',
-        'regularPaymentEnabled'
-      ])
+    expect(transactionData).to.be.a('object')
+    // TODO: expect to be json schema...
   })
 
-  it('GET profile', async () => {
-    const profile = await wallet.getProfile()
-    const { authInfo, contractInfo, userInfo } = profile
-
-    expect(profile)
-      .to.be.a('object')
-      .to.have.keys([
-        'authInfo',
-        'contractInfo',
-        'userInfo'
-      ])
-    expect(authInfo)
-      .to.be.a('object')
-      .to.have.keys([
-        'personId',
-        'pinInfo',
-        'passInfo',
-        'registrationDate',
-        'boundEmail',
-        'ip',
-        'lastLoginDate',
-        'mobilePinInfo'
-      ])
-    expect(contractInfo)
-      .to.be.a('object')
-      .to.have.keys([
-        'contractId',
-        'creationDate',
-        'features',
-        'identificationInfo',
-        'blocked'
-      ])
-    expect(userInfo)
-      .to.be.a('object')
-      .to.have.keys([
-        'defaultPayAccountAlias',
-        'defaultPayCurrency',
-        'defaultPaySource',
-        'firstTxnId',
-        'language',
-        'operator',
-        'phoneHash'
-      ])
-  })
-
-  it('GET balance', async () => {
+  it('get balance', async () => {
     const balance = await wallet.getBalance()
 
     expect(balance).to.be.a('array')
-
-    balance.forEach((item) => {
-      expect(item)
-        .to.be.a('object')
-        .to.have.keys([
-          'alias',
-          'fsAlias',
-          'title',
-          'type',
-          'hasBalance',
-          'balance',
-          'currency'
-        ])
-    })
+    // TODO: expect to be json schema...
   })
 
-  it('SEND payment', async () => {
-    const payment = await wallet.sendPayment(1, '37253676697', 'This is comment')
+  it('send payment', async () => {
+    const payment = await wallet.sendPayment(1, '37253676697', 'Hello, world!')
 
-    expect(payment).to.be.a('object').to.have.keys([
-      'id',
-      'terms',
-      'fields',
-      'sum',
-      'transaction',
-      'comment',
-      'source'
-    ])
+    expect(payment).to.be.a('object')
+    // TODO: expect to be json schema...
   })
 })

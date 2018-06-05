@@ -1,192 +1,144 @@
-const rp = require('request-promise')
+const axios = require('axios')
 
-module.exports = class Qiwi {
+class Qiwi {
   constructor (key) {
-    this.key = key
-    this.baseUrl = 'https://edge.qiwi.com/'
+    this.axios = axios.create({
+      baseURL: 'https://edge.qiwi.com',
+      headers: {
+        'Accept': 'application/json',
+        'Content-Type': 'application/json',
+        'Authorization': `Bearer ${key}`
+      }
+    })
   }
 
-  handlerError (err) {
-    const { code, message } = err
-
-    if (code === 500 && message !== undefined) {
-      return { error: message }
+  async getContractId () {
+    // Если айди контракта уже записан, то просто возвращаем его
+    if (this.contractId) {
+      return this.contractId
     }
 
-    const { error } = err
-    return { error }
+    const { contractInfo } = await this.getProfile()
+
+    this.contractId = contractInfo.contractId
+
+    return contractInfo.contractId
   }
 
-  async getIdentification (contractId, body) {
-    const { baseUrl, key } = this
-
+  async getIdentification (body) {
     try {
-      const identification = await rp({
-        baseUrl,
-        url: `/identification/v1/persons/${contractId}/identification`,
-        method: 'post',
-        headers: {
-          'Accept': 'application/json',
-          'Content-Type': 'application/json',
-          'Authorization': `Bearer ${key}`
-        },
-        body,
-        json: true
-      })
+      const contractId = await this.getContractId()
+      const { data: identification } = await this.axios.post(
+        `/identification/v1/persons/${contractId}/identification`,
+        body
+      )
 
       return identification
     } catch (err) {
-      return this.handlerError(err)
+      console.error(err)
+      throw err
     }
   }
 
-  async getHistory (contractId, settings) {
-    const { baseUrl, key } = this
-
+  async getHistory (settings) {
     try {
-      const { data } = await rp({
-        baseUrl,
-        url: `/payment-history/v1/persons/${contractId}/payments`,
-        headers: {
-          'Accept': 'application/json',
-          'Content-Type': 'application/json',
-          'Authorization': `Bearer ${key}`
-        },
-        qs: {
-          rows: 50,
-          ...settings
-        },
-        json: true
-      })
+      const contractId = await this.getContractId()
+      const { data: history } = await this.axios.get(
+        `/payment-history/v1/persons/${contractId}/payments`,
+        {
+          params: {
+            rows: 50,
+            ...settings
+          }
+        }
+      )
 
-      return data
+      return history.data
     } catch (err) {
-      return this.handlerError(err)
+      throw err
     }
   }
 
-  async getTransactionsStats (contractId, settings = {}) {
-    const { baseUrl, key } = this
-    const { startDate, endDate } = settings
-
+  async getTransactionsStats (settings = {}) {
     try {
-      if (!startDate) {
+      if (!settings.startDate) {
         throw {
           code: 500,
           message: 'startDate is required param'
         }
-      } else if (!endDate) {
+      } else if (!settings.endDate) {
         throw {
           code: 500,
           message: 'endDate is required param'
         }
       }
 
-      const stats = await rp({
-        baseUrl,
-        url: `/payment-history/v1/persons/${contractId}/payments/total`,
-        headers: {
-          'Accept': 'application/json',
-          'Content-Type': 'application/json',
-          'Authorization': `Bearer ${key}`
-        },
-        qs: settings,
-        json: true
-      })
+      const contractId = await this.getContractId()
+      const { data: stats } = await this.axios.get(
+        `/payment-history/v1/persons/${contractId}/payments/total`,
+        {
+          params: settings
+        }
+      )
 
       return stats
     } catch (err) {
-      return this.handlerError(err)
+      throw err
     }
   }
 
   async getTransaction (transactionId, settings = {}) {
-    const { baseUrl, key } = this
-    const { type } = settings
-
     try {
-      if (!type) {
+      if (!settings.type) {
         throw {
           code: 500,
           message: 'type is required param'
         }
       }
 
-      const transaction = await rp({
-        baseUrl,
-        url: `/payment-history/v1/transactions/${transactionId}`,
-        headers: {
-          'Accept': 'application/json',
-          'Content-Type': 'application/json',
-          'Authorization': `Bearer ${key}`
-        },
-        qs: settings,
-        json: true
-      })
+      const { data: transaction } = await this.axios.get(
+        `/payment-history/v1/transactions/${transactionId}`,
+        {
+          params: settings
+        }
+      )
 
       return transaction
     } catch (err) {
-      return this.handlerError(err)
+      throw err
     }
   }
 
   async getProfile (settings) {
-    const { baseUrl, key } = this
-
     try {
-      const profile = await rp({
-        baseUrl,
-        url: '/person-profile/v1/profile/current',
-        headers: {
-          'Accept': 'application/json',
-          'Content-Type': 'application/json',
-          'Authorization': `Bearer ${key}`
-        },
-        qs: settings,
-        json: true
-      })
+      const { data: profile } = await this.axios.get(
+        '/person-profile/v1/profile/current',
+        {
+          params: settings
+        }
+      )
 
       return profile
     } catch (err) {
-      return this.handlerError(err)
+      throw err
     }
   }
 
   async getBalance () {
-    const { baseUrl, key } = this
-
     try {
-      const { accounts } = await rp({
-        baseUrl,
-        url: '/funding-sources/v1/accounts/current',
-        headers: {
-          'Accept': 'application/json',
-          'Content-Type': 'application/json',
-          'Authorization': `Bearer ${key}`
-        },
-        json: true
-      })
+      const { data } = await this.axios.get('/funding-sources/v1/accounts/current')
 
-      return accounts
+      return data.accounts
     } catch (err) {
-      return this.handlerError(err)
+      throw err
     }
   }
 
   async sendPayment (amount, account, comment) {
-    const { baseUrl, key } = this
-
     try {
-      const payment = await rp({
-        baseUrl,
-        url: '/sinap/api/v2/terms/99/payments',
-        method: 'post',
-        headers: {
-          'Accept': 'application/json',
-          'Content-Type': 'application/json',
-          'Authorization': `Bearer ${key}`
-        },
-        body: {
+      const { data: payment } = await this.axios.post(
+        '/sinap/api/v2/terms/99/payments',
+        {
           id: String(Date.now()),
           sum: {
             amount,
@@ -200,13 +152,14 @@ module.exports = class Qiwi {
             account: String(account)
           },
           comment
-        },
-        json: true
-      })
+        }
+      )
 
       return payment
     } catch (err) {
-      return this.handlerError(err)
+      throw err
     }
   }
 }
+
+module.exports = Qiwi
