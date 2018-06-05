@@ -59,7 +59,7 @@ class Qiwi {
     }
   }
 
-  async getTransactionsStats (settings = {}) {
+  async getTransactions (settings = {}) {
     try {
       if (!settings.startDate) {
         throw {

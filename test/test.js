@@ -40,7 +40,7 @@ describe('wallet', () => {
 
     startDate.setDate(1)
 
-    const stats = await wallet.getTransactionsStats({
+    const stats = await wallet.getTransactions({
       startDate,
       endDate
     })

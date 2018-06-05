@@ -23,7 +23,7 @@ $ npm test
 * [.getBalance()](#getbalance) ⇒ `[Promise]`
 * [.getHistory(settings)](#gethistorysettings) ⇒ `[Promise]`
 * [.getIdentification(body)](#getidentificationbody) ⇒ `[Promise]`
-* [.getTransactionsStats(settings)](#gettransactionsstatssettings) ⇒ `[Promise]`
+* [.getTransactions(settings)](#gettransactionssettings) ⇒ `[Promise]`
 * [.getTransaction(transactionId, settings)](#gettransaction-transactionid-settings) ⇒ `[Promise]`
 * [.sendPayment(amount, account, comment)](#sendpaymentamount-account-comment) ⇒ `[Promise]`
 
@@ -100,7 +100,7 @@ const identification = await wallet.getIdentification({
 
 Get identification.
 
-### .getTransactionsStats(settings)
+### .getTransactions(settings)
 
 | Parameter  | Type      | Requried  | Description  |
 |:-----------:|:---------:|:---------:|:------------:|
@@ -111,7 +111,7 @@ Get identification.
 | settings.sources | array[string] | no | Operations sources |
 
 ```js
-const stats = await wallet.getTransactionsStats({
+const stats = await wallet.getTransactions({
   startDate: new Date(),
   endDate: new Date(),
   operation: 'ALL',
