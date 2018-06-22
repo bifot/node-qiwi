@@ -66,7 +66,7 @@ describe('wallet', () => {
   })
 
   it('send payment', async () => {
-    const payment = await wallet.sendPayment(1, '37253676697', 'Hello, world!')
+    const payment = await wallet.sendPayment(0.01, '37253676697', 'Hello, world!')
 
     expect(payment).to.be.a('object')
     // TODO: expect to be json schema...

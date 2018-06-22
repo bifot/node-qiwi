@@ -13,7 +13,6 @@ class Qiwi {
   }
 
   async getContractId () {
-    // Если айди контракта уже записан, то просто возвращаем его
     if (this.contractId) {
       return this.contractId
     }
@@ -26,139 +25,141 @@ class Qiwi {
   }
 
   async getIdentification (body) {
-    try {
-      const contractId = await this.getContractId()
-      const { data: identification } = await this.axios.post(
-        `/identification/v1/persons/${contractId}/identification`,
-        body
-      )
+    const contractId = await this.getContractId()
+    const { data: identification } = await this.axios.post(
+      `/identification/v1/persons/${contractId}/identification`,
+      body
+    )
 
-      return identification
-    } catch (err) {
-      console.error(err)
-      throw err
-    }
+    return identification
   }
 
   async getHistory (settings) {
-    try {
-      const contractId = await this.getContractId()
-      const { data: history } = await this.axios.get(
-        `/payment-history/v1/persons/${contractId}/payments`,
-        {
-          params: {
-            rows: 50,
-            ...settings
-          }
+    const contractId = await this.getContractId()
+    const { data: history } = await this.axios.get(
+      `/payment-history/v1/persons/${contractId}/payments`,
+      {
+        params: {
+          rows: 50,
+          ...settings
         }
-      )
+      }
+    )
 
-      return history.data
-    } catch (err) {
-      throw err
-    }
+    return history.data
   }
 
   async getTransactions (settings = {}) {
-    try {
-      if (!settings.startDate) {
-        throw {
-          code: 500,
-          message: 'startDate is required param'
-        }
-      } else if (!settings.endDate) {
-        throw {
-          code: 500,
-          message: 'endDate is required param'
-        }
-      }
-
-      const contractId = await this.getContractId()
-      const { data: stats } = await this.axios.get(
-        `/payment-history/v1/persons/${contractId}/payments/total`,
-        {
-          params: settings
-        }
-      )
-
-      return stats
-    } catch (err) {
-      throw err
+    if (!settings.startDate) {
+      throw new Error('startDate is required param')
+    } else if (!settings.endDate) {
+      throw new Error('endDate is required param')
     }
+
+    const contractId = await this.getContractId()
+    const { data: stats } = await this.axios.get(
+      `/payment-history/v1/persons/${contractId}/payments/total`,
+      {
+        params: settings
+      }
+    )
+
+    return stats
   }
 
   async getTransaction (transactionId, settings = {}) {
-    try {
-      if (!settings.type) {
-        throw {
-          code: 500,
-          message: 'type is required param'
-        }
-      }
-
-      const { data: transaction } = await this.axios.get(
-        `/payment-history/v1/transactions/${transactionId}`,
-        {
-          params: settings
-        }
-      )
-
-      return transaction
-    } catch (err) {
-      throw err
+    if (!settings.type) {
+      throw new Error('type is required param')
     }
+
+    const { data: transaction } = await this.axios.get(
+      `/payment-history/v1/transactions/${transactionId}`,
+      {
+        params: settings
+      }
+    )
+
+    return transaction
   }
 
   async getProfile (settings) {
-    try {
-      const { data: profile } = await this.axios.get(
-        '/person-profile/v1/profile/current',
-        {
-          params: settings
-        }
-      )
+    const { data: profile } = await this.axios.get(
+      '/person-profile/v1/profile/current',
+      {
+        params: settings
+      }
+    )
 
-      return profile
-    } catch (err) {
-      throw err
-    }
+    return profile
   }
 
   async getBalance () {
-    try {
-      const { data } = await this.axios.get('/funding-sources/v1/accounts/current')
+    const { data } = await this.axios.get('/funding-sources/v1/accounts/current')
 
-      return data.accounts
-    } catch (err) {
-      throw err
-    }
+    return data.accounts
   }
 
   async sendPayment (amount, account, comment) {
-    try {
-      const { data: payment } = await this.axios.post(
-        '/sinap/api/v2/terms/99/payments',
-        {
-          id: String(Date.now()),
-          sum: {
-            amount,
-            currency: '643'
-          },
-          paymentMethod: {
-            type: 'Account',
-            accountId: '643'
-          },
-          fields: {
-            account: String(account)
-          },
-          comment
-        }
-      )
+    const { data: payment } = await this.axios.post(
+      '/sinap/api/v2/terms/99/payments',
+      {
+        id: String(Date.now()),
+        sum: {
+          amount,
+          currency: '643'
+        },
+        paymentMethod: {
+          type: 'Account',
+          accountId: '643'
+        },
+        fields: {
+          account: String(account)
+        },
+        comment
+      }
+    )
 
-      return payment
-    } catch (err) {
-      throw err
-    }
+    return payment
+  }
+
+  async createWebhook (url, type) {
+    const { data } = await this.axios.put('/payment-notifier/v1/hooks', {
+      hookType: 1,
+      param: url,
+      txnType: type + ''
+    })
+
+    return data
+  }
+
+  async deleteWebhook (id) {
+    const { data } = await this.axios.delete(`/payment-notifier/v1/hooks/${id}`)
+
+    return data
+  }
+
+  async getWebhookSecretKey (id) {
+    const { data } = await this.axios.get(`/payment-notifier/v1/hooks/${id}/key`)
+
+    return data.key
+  }
+
+  async updateWebhookSecretKey (id) {
+    const { data } = await this.axios.post(`/payment-notifier/v1/hooks/${id}/newkey`)
+
+    return data.key
+  }
+
+  async getActiveWebhooks () {
+    const { data } = await this.axios.get('/payment-notifier/v1/hooks/active')
+
+    return data
+  }
+
+  async sendWebhookTest () {
+    const { data } = await this.axios.get('/payment-notifier/v1/hooks/test')
+
+    return data
   }
 }
 
