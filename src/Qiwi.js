@@ -123,10 +123,12 @@ class Qiwi {
   }
 
   async createWebhook (url, type) {
-    const { data } = await this.axios.put('/payment-notifier/v1/hooks', {
-      hookType: 1,
-      param: url,
-      txnType: type + ''
+    const { data } = await this.axios.put('/payment-notifier/v1/hooks', null, {
+      params: {
+        hookType: 1,
+        param: url,
+        txnType: type
+      }
     })
 
     return data
